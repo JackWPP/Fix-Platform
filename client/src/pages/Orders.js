@@ -1,9 +1,23 @@
 import React from 'react';
-import { Table, Tag, Space, Button, Typography } from 'antd';
+import { Table, Tag, Space, Button, Typography, message } from 'antd';
 
 const { Title } = Typography;
 
 const Orders = () => {
+  const handleViewDetail = (record) => {
+    message.info(`查看订单 ${record.id} 的详情`);
+    // 这里可以添加查看订单详情的逻辑
+  };
+
+  const handleCancelOrder = (record) => {
+    message.warning(`取消订单 ${record.id}`);
+    // 这里可以添加取消订单的逻辑
+  };
+
+  const handleCreateOrder = () => {
+    message.info('跳转到创建订单页面');
+    // 这里可以添加跳转到创建订单页面的逻辑
+  };
   const columns = [
     {
       title: '订单号',
@@ -43,8 +57,8 @@ const Orders = () => {
       key: 'action',
       render: (text, record) => (
         <Space size="middle">
-          <a>查看详情</a>
-          {record.status === '待处理' && <a>取消订单</a>}
+          <a onClick={() => handleViewDetail(record)}>查看详情</a>
+          {record.status === '待处理' && <a onClick={() => handleCancelOrder(record)}>取消订单</a>}
         </Space>
       ),
     },
@@ -81,7 +95,7 @@ const Orders = () => {
     <div>
       <Title level={2}>我的订单</Title>
       <Table columns={columns} dataSource={data} />
-      <Button type="primary" style={{ marginTop: 16 }}>
+      <Button type="primary" style={{ marginTop: 16 }} onClick={handleCreateOrder}>
         创建新订单
       </Button>
     </div>

@@ -1,9 +1,29 @@
 import React from 'react';
-import { Button, Card, Col, Row, Typography } from 'antd';
+import { Button, Card, Col, Row, Typography, message } from 'antd';
+import { useHistory } from 'react-router-dom';
 
 const { Title, Paragraph } = Typography;
 
 const Home = () => {
+  const history = useHistory();
+
+  const handleQuickOrder = () => {
+    message.info('跳转到下单页面');
+    // 这里可以添加跳转到下单页面的逻辑
+    // history.push('/create-order');
+  };
+
+  const handleViewOrders = () => {
+    message.info('跳转到订单页面');
+    history.push('/orders');
+  };
+
+  const handleEvaluate = () => {
+    message.info('跳转到评价页面');
+    // 这里可以添加跳转到评价页面的逻辑
+    // history.push('/evaluate');
+  };
+
   return (
     <div>
       <Title level={2}>欢迎使用XGX维修平台</Title>
@@ -11,21 +31,21 @@ const Home = () => {
       
       <Row gutter={16}>
         <Col span={8}>
-          <Card title="快速下单" bordered={false}>
+          <Card title="快速下单" variant="borderless">
             <p>快速提交您的维修需求</p>
-            <Button type="primary">立即下单</Button>
+            <Button type="primary" onClick={handleQuickOrder}>立即下单</Button>
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="订单查询" bordered={false}>
+          <Card title="订单查询" variant="borderless">
             <p>查看您的订单状态</p>
-            <Button>查看订单</Button>
+            <Button onClick={handleViewOrders}>查看订单</Button>
           </Card>
         </Col>
         <Col span={8}>
-          <Card title="服务评价" bordered={false}>
+          <Card title="服务评价" variant="borderless">
             <p>对已完成的服务进行评价</p>
-            <Button>我要评价</Button>
+            <Button onClick={handleEvaluate}>我要评价</Button>
           </Card>
         </Col>
       </Row>
