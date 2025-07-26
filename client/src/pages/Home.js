@@ -8,9 +8,7 @@ const Home = () => {
   const history = useHistory();
 
   const handleQuickOrder = () => {
-    message.info('跳转到下单页面');
-    // 这里可以添加跳转到下单页面的逻辑
-    // history.push('/create-order');
+    history.push('/create-order');
   };
 
   const handleViewOrders = () => {

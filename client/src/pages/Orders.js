@@ -1,9 +1,12 @@
 import React from 'react';
 import { Table, Tag, Space, Button, Typography, message } from 'antd';
+import { useHistory } from 'react-router-dom';
 
 const { Title } = Typography;
 
 const Orders = () => {
+  const history = useHistory();
+  
   const handleViewDetail = (record) => {
     message.info(`查看订单 ${record.id} 的详情`);
     // 这里可以添加查看订单详情的逻辑
@@ -15,8 +18,7 @@ const Orders = () => {
   };
 
   const handleCreateOrder = () => {
-    message.info('跳转到创建订单页面');
-    // 这里可以添加跳转到创建订单页面的逻辑
+    history.push('/create-order');
   };
   const columns = [
     {
@@ -70,7 +72,7 @@ const Orders = () => {
       id: 'ORD001',
       device: '笔记本电脑',
       issue: '无法开机',
-      time: '2023-05-10 14:30',
+      time: '2025-07-10 14:30',
       status: '处理中',
     },
     {
@@ -78,7 +80,7 @@ const Orders = () => {
       id: 'ORD002',
       device: '手机',
       issue: '屏幕碎裂',
-      time: '2023-05-12 09:15',
+      time: '2025-07-12 09:15',
       status: '已完成',
     },
     {
@@ -86,7 +88,7 @@ const Orders = () => {
       id: 'ORD003',
       device: '平板电脑',
       issue: '电池膨胀',
-      time: '2023-05-15 16:45',
+      time: '2025-07-15 16:45',
       status: '待处理',
     },
   ];

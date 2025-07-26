@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom';
 import Home from './pages/Home';
 import Orders from './pages/Orders';
 import Profile from './pages/Profile';
+import CreateOrder from './pages/CreateOrder';
 import './App.css';
 
 const { Header, Content, Footer } = Layout;
@@ -43,10 +44,11 @@ function App() {
               <Route exact path="/" component={Home} />
               <Route path="/orders" component={Orders} />
               <Route path="/profile" component={Profile} />
+              <Route path="/create-order" component={CreateOrder} />
             </Switch>
           </div>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Fix-Platform ©2023 Created for XGX</Footer>
+        <Footer style={{ textAlign: 'center' }}>Fix-Platform ©2025 Created for XGX</Footer>
       </Layout>
     </Router>
   );
