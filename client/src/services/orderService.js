@@ -1,8 +1,22 @@
 import api from './api';
 
 // 创建订单
-export const createOrder = (orderData) => {
-  return api.post('/orders', orderData);
+export const createOrder = async (orderData) => {
+  try {
+    console.log('orderService: 准备发送请求到 /orders');
+    console.log('orderService: 请求数据:', orderData);
+    const response = await api.post('/orders', orderData);
+    console.log('orderService: 收到响应:', response);
+    return response;
+  } catch (error) {
+    console.error('orderService: 请求失败:', error);
+    console.error('orderService: 错误详情:', {
+      message: error.message,
+      response: error.response,
+      request: error.request
+    });
+    throw error;
+  }
 };
 
 // 获取用户订单列表

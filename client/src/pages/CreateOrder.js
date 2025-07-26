@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Select, Button, Card, Typography, message, DatePicker, Radio, Upload, Divider } from 'antd';
 import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
+import { createOrder } from '../services/orderService';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -92,16 +93,19 @@ const CreateOrder = () => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // 这里可以调用API提交订单
       const orderData = {
         ...values,
         serviceType,
-        images: fileList.map(file => file.originFileObj || file)
+        appointmentService,
+        images: fileList.map(file => file.name), // 简化处理，实际应该上传文件
+        appointmentTime: values.appointmentTime?.format('YYYY-MM-DD HH:mm:ss')
       };
-      console.log('订单信息:', orderData);
       
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('提交订单数据:', orderData);
+      
+      console.log('开始调用API创建订单...');
+      const response = await createOrder(orderData);
+      console.log('订单创建响应:', response);
       
       const serviceTypeName = serviceType === 'repair' ? '维修' : '预约';
       message.success(`${serviceTypeName}订单提交成功！我们会尽快联系您。`);
@@ -112,6 +116,7 @@ const CreateOrder = () => {
       }, 1500);
       
     } catch (error) {
+      console.error('创建订单失败:', error);
       message.error('订单提交失败，请重试');
     } finally {
       setLoading(false);
