@@ -1,126 +1,281 @@
-# Fix-Platform
+# Fix-Platform 维修服务管理平台
 
-一个维修管理平台 For XGX
+一个基于 React + Node.js + MongoDB 的现代化维修服务管理平台，提供完整的订单管理、用户认证、多角色权限控制等功能。
 
-## 项目介绍
+## 🚀 项目特性
 
-本项目主要用于XGX店内部的维修下单管理，旨在解决下面几个问题：
+- **现代化技术栈**：React 18 + Ant Design 5 + Node.js + Express + MongoDB
+- **多角色权限**：支持普通用户、维修员、客服、管理员四种角色
+- **完整订单流程**：从订单创建到完成的全流程管理
+- **实时状态更新**：订单状态实时跟踪和更新
+- **图片上传**：支持多图片上传和预览
+- **响应式设计**：适配桌面端和移动端
+- **Docker 部署**：支持容器化部署
 
-- 用户下单困难，下单之后没反馈
-- 维修同学不知道要修那些单，没有直观的反馈
-- 收获不到用户评价反馈
-- 缺乏统一的首款平台
+## 📋 功能模块
 
-## 技术栈
+### 用户功能
 
-- 前端: React 18.x + Ant Design 5.26.6
-- 后端: Node.js + Express
-- 数据库: MongoDB
-- 部署: Docker
-- 路由: React Router DOM 5.3.4
+- 手机号验证码登录/注册
+- 创建维修订单
+- 查看订单状态
+- 订单评价
+- 个人信息管理
 
-## 项目结构
+### 维修员功能
+
+- 查看分配的订单
+- 更新订单状态
+- 上传维修进度图片
+- 工作台数据统计
+
+### 客服功能
+
+- 订单分配和管理
+- 客户沟通记录
+- 订单状态跟踪
+
+### 管理员功能
+
+- 用户管理
+- 订单统计
+- 系统配置管理
+- 数据分析报表
+
+## 🛠️ 技术栈
+
+### 前端
+
+- **React 18** - 用户界面框架
+- **Ant Design 5.26.6** - UI 组件库
+- **React Router 5.3.4** - 路由管理
+- **Axios** - HTTP 客户端
+- **Recharts** - 数据可视化
+
+### 后端
+
+- **Node.js** - 运行时环境
+- **Express 4** - Web 框架
+- **MongoDB** - 数据库
+- **Mongoose** - ODM
+- **JWT** - 身份认证
+- **bcryptjs** - 密码加密
+- **Multer** - 文件上传
+
+### 部署
+
+- **Docker** - 容器化
+- **Docker Compose** - 多容器编排
+- **Vercel** - 前端部署
+
+## 📦 项目结构
 
 ```
 Fix-Platform/
-├── client/        # 前端代码
-├── server/        # 后端代码
-└── docker-compose.yml
+├── client/                 # 前端应用
+│   ├── public/            # 静态资源
+│   ├── src/
+│   │   ├── components/    # 可复用组件
+│   │   ├── pages/         # 页面组件
+│   │   ├── services/      # API 服务
+│   │   ├── contexts/      # React Context
+│   │   └── App.js         # 应用入口
+│   └── package.json
+├── server/                # 后端应用
+│   ├── controllers/       # 控制器
+│   ├── models/           # 数据模型
+│   ├── routes/           # 路由定义
+│   ├── middleware/       # 中间件
+│   ├── services/         # 业务服务
+│   ├── scripts/          # 脚本文件
+│   └── app.js            # 应用入口
+├── .trae/
+│   └── documents/        # 项目文档
+├── docker-compose.yml    # Docker 编排文件
+├── vercel.json          # Vercel 配置
+└── README.md            # 项目说明
 ```
 
-## 运行项目
+## 🚀 快速开始
 
-### 使用Docker（推荐）
+### 环境要求
+
+- Node.js >= 16.0.0
+- MongoDB >= 4.4
+- npm 或 yarn
+
+### 安装依赖
 
 ```bash
-# 启动所有服务
-docker-compose up
-
-# 后台启动所有服务
-docker-compose up -d
-```
-
-### 本地开发
-
-1. 启动MongoDB数据库（需要本地安装MongoDB）
-
-2. 启动后端服务：
-```bash
+# 安装后端依赖
 cd server
 npm install
-npm run dev
+
+# 安装前端依赖
+cd ../client
+npm install
 ```
 
-3. 启动前端服务：
+### 环境配置
+
+在 `server` 目录下创建 `.env` 文件：
+
+```env
+# 数据库配置
+MONGODB_URI=mongodb://localhost:27017/fix-platform
+
+# JWT 配置
+JWT_SECRET=your-jwt-secret-key
+JWT_EXPIRES_IN=7d
+
+# 服务器配置
+PORT=5000
+NODE_ENV=development
+
+# 文件上传配置
+UPLOAD_PATH=./uploads
+MAX_FILE_SIZE=5242880
+```
+
+### 初始化数据
+
 ```bash
+# 进入服务器目录
+cd server
+
+# 运行初始化脚本
+node scripts/initData.js
+```
+
+### 启动应用
+
+```bash
+# 启动后端服务
+cd server
+npm start
+
+# 启动前端应用（新终端）
 cd client
-npm install
 npm start
 ```
 
-> **注意**：前端现在使用React 18.x版本，可以直接使用 `npm start` 启动，无需额外的环境变量配置。
+访问 http://localhost:3000 查看应用。
 
-## API文档
+## 🐳 Docker 部署
 
-### 认证相关
+### 使用 Docker Compose
 
-- POST `/api/auth/send-code` - 发送验证码
-- POST `/api/auth/register` - 用户注册
-- POST `/api/auth/login` - 用户登录
+```bash
+# 构建并启动所有服务
+docker-compose up -d
 
-### 订单相关
+# 查看服务状态
+docker-compose ps
 
-- POST `/api/orders` - 创建订单
-- GET `/api/orders` - 获取用户订单列表
-- GET `/api/orders/:id` - 获取订单详情
-- PUT `/api/orders/:id/cancel` - 取消订单
-- POST `/api/orders/:id/rate` - 评价订单
+# 停止服务
+docker-compose down
+```
 
-### 用户相关
+### 单独构建镜像
 
-- GET `/api/user/info` - 获取用户信息
-- PUT `/api/user/info` - 更新用户信息
+```bash
+# 构建前端镜像
+cd client
+docker build -t fix-platform-client .
 
-## 最新更新
+# 构建后端镜像
+cd ../server
+docker build -t fix-platform-server .
+```
 
-### 前端优化 (2025年7月最新)
-- ✅ 修复了所有Ant Design v5兼容性警告
-- ✅ 解决了React版本兼容性问题 (v19 → v18)
-- ✅ 完善了所有按钮的交互功能
-- ✅ 实现了页面间的路由导航
-- ✅ 添加了用户操作反馈提示
-- ✅ 新增图片上传功能
-- ✅ 扩展服务类型（维修 + 预约服务）
+## 📱 测试账号
 
-### 新增功能特性
+系统提供以下测试账号：
 
-#### 📸 图片上传
-- 支持上传故障图片或设备照片
-- 最多可上传6张图片
-- 支持多种图片格式
-- 单张图片大小限制5MB
-- 实时预览功能
+| 角色       | 手机号      | 密码   | 说明       |
+| ---------- | ----------- | ------ | ---------- |
+| 超级管理员 | 13800000001 | 123456 | 系统管理员 |
+| 客服       | 13800000002 | 123456 | 客服人员   |
+| 维修员     | 13800000003 | 123456 | 维修技师   |
+| 维修员     | 13800000004 | 123456 | 维修技师   |
+| 普通用户   | 13800000005 | 123456 | 普通客户   |
+| 普通用户   | 13800000006 | 123456 | 普通客户   |
 
-#### 🔧 服务类型扩展
-- **维修服务**：传统故障维修，需要详细描述问题
-- **预约服务**：明确服务项目，包括：
-  - 清灰（支持液态金属机型选项）
-  - 换屏
-  - 换电池
-  - 系统重装
-  - 软件安装
+## 🔧 开发指南
 
-#### 🎯 智能表单
-- 根据服务类型动态显示相关字段
-- 清灰服务特殊选项：是否为液态金属机型
-- 表单验证和用户友好提示
+### 代码规范
 
-### 功能状态
-- 🟢 用户认证系统 - 已完成
-- 🟢 订单管理功能 - 已完成
-- 🟢 前端界面交互 - 已完成
-- 🟢 图片上传功能 - 已完成
-- 🟢 服务类型扩展 - 已完成
-- 🟡 维修员后台 - 开发中
-- 🟡 支付功能 - 计划中
-- 🟡 实时通知 - 计划中
+- 使用 ES6+ 语法
+- 组件采用函数式组件 + Hooks
+- 遵循 Ant Design 设计规范
+- 使用 TypeScript（推荐）
+
+### 提交规范
+
+- feat: 新功能
+- fix: 修复问题
+- docs: 文档更新
+- style: 代码格式调整
+- refactor: 代码重构
+- test: 测试相关
+- chore: 构建过程或辅助工具的变动
+
+### API 开发
+
+- 遵循 RESTful 设计原则
+- 统一错误处理和响应格式
+- 添加适当的中间件验证
+- 编写 API 文档
+
+## 📊 项目状态
+
+### 已完成功能 ✅
+
+- [X] 用户认证系统
+- [X] 订单管理系统
+- [X] 多角色权限控制
+- [X] 图片上传功能
+- [X] 响应式界面设计
+- [X] 数据统计展示
+- [X] 系统配置管理
+
+### 开发中功能 🚧
+
+- [ ] 实时通知系统
+- [ ] 支付功能集成
+- [ ] 消息通信功能
+- [ ] 移动端 PWA
+
+### 计划功能 📋
+
+- [ ] 数据分析报表
+- [ ] 第三方服务集成
+- [ ] 多语言支持
+- [ ] 系统监控
+
+## 🤝 贡献指南
+
+1. Fork 项目
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 📞 联系方式
+
+如有问题或建议，请通过以下方式联系：
+
+- 项目 Issues: [GitHub Issues](https://github.com/your-username/Fix-Platform/issues)
+- 邮箱: your-email@example.com
+
+## 🙏 致谢
+
+感谢所有为这个项目做出贡献的开发者和用户！
+
+---
+
+**Fix-Platform** - 让维修服务更简单、更高效！

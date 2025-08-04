@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+
+# Build outputs
+build
+dist
+
+# Version control
+.git
+
+# Development files
+.trae/TODO.md
+*.log
+logs
+
+# IDE and OS files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+docker-compose.override.yml
+
+# Database
+data/db

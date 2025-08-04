@@ -1,0 +1,256 @@
+/* Dashboard 通用样式 */
+.dashboard-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-title {
+  color: #1890ff;
+  margin-bottom: 8px;
+}
+
+.dashboard-subtitle {
+  color: #666;
+  margin-bottom: 0;
+}
+
+/* 统计卡片样式 */
+.stats-card {
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card .ant-statistic-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.stats-card .ant-statistic-content {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 订单状态颜色 */
+.status-pending {
+  color: #faad14;
+}
+
+.status-confirmed {
+  color: #1890ff;
+}
+
+.status-in-progress {
+  color: #722ed1;
+}
+
+.status-completed {
+  color: #52c41a;
+}
+
+.status-cancelled {
+  color: #f5222d;
+}
+
+/* 紧急程度颜色 */
+.urgency-low {
+  color: #52c41a;
+}
+
+.urgency-medium {
+  color: #faad14;
+}
+
+.urgency-high {
+  color: #f5222d;
+}
+
+/* 操作按钮样式 */
+.action-button {
+  margin-right: 8px;
+}
+
+.action-button:last-child {
+  margin-right: 0;
+}
+
+/* 搜索和筛选区域 */
+.filter-section {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.filter-row {
+  align-items: center;
+}
+
+.filter-item {
+  margin-bottom: 16px;
+}
+
+.filter-item:last-child {
+  margin-bottom: 0;
+}
+
+/* 表格样式 */
+.orders-table {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.orders-table .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+}
+
+.orders-table .ant-table-tbody > tr:hover > td {
+  background-color: #f5f5f5;
+}
+
+/* 模态框样式 */
+.order-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.order-modal .ant-descriptions-item-label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* 评价模态框 */
+.rating-modal .ant-rate {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.rating-modal .ant-form-item-label {
+  font-weight: 600;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .filter-section {
+    padding: 12px;
+  }
+  
+  .stats-card {
+    margin-bottom: 16px;
+  }
+  
+  .action-button {
+    margin-bottom: 8px;
+  }
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #999;
+}
+
+.empty-state .ant-empty-description {
+  color: #999;
+}
+
+/* 用户信息卡片 */
+.user-info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.user-info-card .user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+
+.user-info-card .user-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.user-info-card .user-role {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* 快速操作按钮 */
+.quick-actions {
+  margin-bottom: 24px;
+}
+
+.quick-action-btn {
+  height: 48px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-right: 12px;
+  margin-bottom: 12px;
+}
+
+.quick-action-btn:last-child {
+  margin-right: 0;
+}
+
+/* 数据卡片动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.stats-card:nth-child(1) { animation-delay: 0.1s; }
+.stats-card:nth-child(2) { animation-delay: 0.2s; }
+.stats-card:nth-child(3) { animation-delay: 0.3s; }
+.stats-card:nth-child(4) { animation-delay: 0.4s; }

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Form, Input, Select, Button, Card, Typography, message, DatePicker, Radio, Upload, Divider } from 'antd';
-import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Select, Button, Card, Typography, message, DatePicker, Radio, Upload, Divider, Alert } from 'antd';
+import { UploadOutlined, PlusOutlined, DollarOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import { createOrder } from '../services/orderService';
+import { paymentAPI } from '../services/api';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -15,6 +16,9 @@ const CreateOrder = () => {
   const [serviceType, setServiceType] = useState('repair'); // 'repair' 或 'appointment'
   const [appointmentService, setAppointmentService] = useState(''); // 选择的预约服务类型
   const [fileList, setFileList] = useState([]);
+  const [servicePrices, setServicePrices] = useState({});
+  const [currentPrice, setCurrentPrice] = useState(0);
+  const [priceLoading, setPriceLoading] = useState(false);
 
   const deviceTypes = [
     '手机',
@@ -51,6 +55,41 @@ const CreateOrder = () => {
     { label: '不确定', value: 'uncertain' }
   ];
 
+  // 获取服务价格
+  useEffect(() => {
+    const fetchServicePrices = async () => {
+      setPriceLoading(true);
+      try {
+        const prices = await paymentAPI.getServicePrices();
+        setServicePrices(prices);
+        // 设置初始价格
+        updateCurrentPrice('repair', '');
+      } catch (error) {
+        console.error('获取服务价格失败:', error);
+        message.error('获取服务价格失败');
+      } finally {
+        setPriceLoading(false);
+      }
+    };
+    fetchServicePrices();
+  }, []);
+
+  // 更新当前价格
+  const updateCurrentPrice = (type, service) => {
+    if (!servicePrices || Object.keys(servicePrices).length === 0) {
+      setCurrentPrice(100); // 默认价格
+      return;
+    }
+    
+    let price = 100; // 默认价格
+    if (type === 'repair') {
+      price = servicePrices.repair?.base || 100;
+    } else if (type === 'appointment' && service) {
+      price = servicePrices.appointment?.[service] || 100;
+    }
+    setCurrentPrice(price);
+  };
+
   const handleServiceTypeChange = (value) => {
     setServiceType(value);
     setAppointmentService(''); // 清空预约服务选择
@@ -60,6 +99,8 @@ const CreateOrder = () => {
       appointmentService: undefined,
       liquidMetal: undefined
     });
+    // 更新价格
+    updateCurrentPrice(value, '');
   };
 
   const handleAppointmentServiceChange = (value) => {
@@ -70,6 +111,8 @@ const CreateOrder = () => {
         liquidMetal: undefined
       });
     }
+    // 更新价格
+    updateCurrentPrice(serviceType, value);
   };
 
   const handleUploadChange = ({ fileList: newFileList }) => {
@@ -108,11 +151,11 @@ const CreateOrder = () => {
       console.log('订单创建响应:', response);
       
       const serviceTypeName = serviceType === 'repair' ? '维修' : '预约';
-      message.success(`${serviceTypeName}订单提交成功！我们会尽快联系您。`);
+      message.success(`${serviceTypeName}订单创建成功！请完成支付。`);
       
-      // 跳转到订单页面
+      // 跳转到支付页面
       setTimeout(() => {
-        history.push('/orders');
+        history.push(`/payment/${response.order._id}`);
       }, 1500);
       
     } catch (error) {
@@ -163,6 +206,17 @@ const CreateOrder = () => {
           </Form.Item>
 
           <Divider />
+          
+          {/* 价格显示 */}
+          <Alert
+            message={`当前服务价格：¥${currentPrice}`}
+            description={priceLoading ? '正在获取价格信息...' : `${serviceType === 'repair' ? '维修服务' : '预约服务'}${appointmentService ? ` - ${appointmentServices.find(s => s.value === appointmentService)?.label}` : ''}`}
+            type="info"
+            showIcon
+            icon={<DollarOutlined />}
+            style={{ marginBottom: 16 }}
+          />
+          
           <Form.Item
             label="设备类型"
             name="deviceType"

@@ -39,3 +39,6 @@ docker-compose.override.yml
 
 # MongoDB (for local development)
 data/db
+
+# Trae AI files (keep documents but ignore TODO)
+.trae/TODO.md

@@ -73,7 +73,58 @@ const orderSchema = new mongoose.Schema({
       max: 5
     },
     comment: String
+  },
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  repairNotes: {
+    type: String,
+    default: ''
+  },
+  repairImages: {
+    type: [String],
+    default: []
+  },
+  // 支付相关字段
+  amount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['unpaid', 'pending', 'paid', 'failed', 'refunded'],
+    default: 'unpaid'
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['wechat', 'alipay', 'cash'],
+    default: null
+  },
+  paymentOrderId: {
+    type: String,
+    default: null
+  },
+  paymentTime: {
+    type: Date,
+    default: null
+  },
+  refundAmount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  refundTime: {
+    type: Date,
+    default: null
+  },
+  refundReason: {
+    type: String,
+    default: null
   }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Order', orderSchema);
