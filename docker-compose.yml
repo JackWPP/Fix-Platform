@@ -1,48 +1,106 @@
 version: '3.8'
 
 services:
+  # MongoDB数据库
   mongodb:
-    image: mongo:latest
-    container_name: fixplatform-mongodb
+    image: mongo:6.0
+    container_name: fix-platform-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password123}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME:-fix_platform}
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
+      - ./server/scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - fix-platform-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: fixplatform-backend
+  # Redis缓存（可选）
+  redis:
+    image: redis:7-alpine
+    container_name: fix-platform-redis
+    restart: unless-stopped
     ports:
-      - "5000:5000"
-    environment:
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/fixplatform?authSource=admin
-      - PORT=5000
-      - JWT_SECRET=fixplatformsecret
-    depends_on:
-      - mongodb
+      - "6379:6379"
     volumes:
-      - ./server:/app
-      - /app/node_modules
+      - redis_data:/data
+    networks:
+      - fix-platform-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  frontend:
+  # 应用服务
+  app:
     build:
-      context: ./client
+      context: .
       dockerfile: Dockerfile
-    container_name: fixplatform-frontend
+    container_name: fix-platform-app
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${PORT:-5000}:5000"
     environment:
-      - REACT_APP_API_URL=http://localhost:5000/api
-    depends_on:
-      - backend
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 5000
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-password123}@mongodb:27017/${MONGO_DB_NAME:-fix_platform}?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      ENABLE_SMS_VERIFICATION: ${ENABLE_SMS_VERIFICATION:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      REDIS_URL: redis://redis:6379
     volumes:
-      - ./client:/app
-      - /app/node_modules
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      - fix-platform-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx反向代理（生产环境）
+  nginx:
+    image: nginx:alpine
+    container_name: fix-platform-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./client/build:/usr/share/nginx/html:ro
+    networks:
+      - fix-platform-network
+    depends_on:
+      - app
+    profiles:
+      - production
 
 volumes:
   mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  fix-platform-network:
+    driver: bridge

@@ -10,7 +10,11 @@
 - **实时状态更新**：订单状态实时跟踪和更新
 - **图片上传**：支持多图片上传和预览
 - **响应式设计**：适配桌面端和移动端
-- **Docker 部署**：支持容器化部署
+- **生产环境就绪**：完整的生产环境配置和部署方案
+- **安全增强**：输入验证、请求限制、CORS 配置等安全措施
+- **健康监控**：完整的健康检查和监控系统
+- **日志系统**：结构化日志记录和管理
+- **Docker 部署**：支持容器化部署和 Docker Compose 编排
 
 ## 📋 功能模块
 
@@ -121,20 +125,38 @@ npm install
 在 `server` 目录下创建 `.env` 文件：
 
 ```env
+# 基础配置
+NODE_ENV=development
+PORT=5000
+CLIENT_URL=http://localhost:3000
+
 # 数据库配置
-MONGODB_URI=mongodb://localhost:27017/fix-platform
+MONGODB_URI=mongodb://localhost:27017/fix_platform
+# 或使用 MongoDB Atlas
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/fix_platform
+# 或使用内存数据库（开发测试）
+# MONGODB_URI=memory
 
 # JWT 配置
-JWT_SECRET=your-jwt-secret-key
-JWT_EXPIRES_IN=7d
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
 
-# 服务器配置
-PORT=5000
-NODE_ENV=development
+# 短信验证码配置（可选）
+ENABLE_SMS_VERIFICATION=false
+SMS_ACCESS_KEY_ID=your-access-key-id
+SMS_ACCESS_KEY_SECRET=your-access-key-secret
+SMS_SIGN_NAME=your-sign-name
+SMS_TEMPLATE_CODE=your-template-code
+
+# 日志配置
+LOG_LEVEL=DEBUG
 
 # 文件上传配置
 UPLOAD_PATH=./uploads
-MAX_FILE_SIZE=5242880
+MAX_FILE_SIZE=10485760
+
+# 安全配置
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
 ```
 
 ### 初始化数据
@@ -163,7 +185,7 @@ npm start
 
 ## 🐳 Docker 部署
 
-### 使用 Docker Compose
+### 开发环境
 
 ```bash
 # 构建并启动所有服务
@@ -172,20 +194,38 @@ docker-compose up -d
 # 查看服务状态
 docker-compose ps
 
+# 查看日志
+docker-compose logs -f
+
 # 停止服务
 docker-compose down
 ```
 
-### 单独构建镜像
+### 生产环境
 
 ```bash
-# 构建前端镜像
-cd client
-docker build -t fix-platform-client .
+# 启动生产环境（包含 Nginx）
+docker-compose --profile production up -d
 
-# 构建后端镜像
-cd ../server
-docker build -t fix-platform-server .
+# 健康检查
+curl http://localhost/api/health
+```
+
+### 环境变量配置
+
+创建 `.env` 文件配置 Docker 环境：
+
+```env
+# Docker 环境配置
+NODE_ENV=production
+PORT=5000
+MONGO_ROOT_USERNAME=admin
+MONGO_ROOT_PASSWORD=your-secure-password
+MONGO_DB_NAME=fix_platform
+JWT_SECRET=your-super-secret-jwt-key
+CLIENT_URL=https://your-domain.com
+ENABLE_SMS_VERIFICATION=false
+LOG_LEVEL=INFO
 ```
 
 ## 📱 测试账号
@@ -198,6 +238,61 @@ docker build -t fix-platform-server .
 | 客服       | 13800000002 | 123456 | 客服人员   |
 | 维修员     | 13800000003 | 123456 | 维修技师   |
 | 维修员     | 13800000004 | 123456 | 维修技师   |
+
+**注意**：生产环境部署时请务必修改默认密码！
+
+## 🔧 API 接口
+
+### 健康检查
+
+- `GET /api/health` - 基础健康检查
+- `GET /api/health/detailed` - 详细健康检查
+- `GET /api/ready` - 就绪检查
+- `GET /api/live` - 存活检查
+
+### 认证配置
+
+- `GET /api/auth/config` - 获取认证配置（是否启用短信验证等）
+
+## 🚀 生产环境部署
+
+详细的生产环境部署指南请参考 [DEPLOYMENT.md](./DEPLOYMENT.md)，包含：
+
+- Docker 部署方案
+- PM2 部署方案
+- Nginx 反向代理配置
+- SSL 证书配置
+- 监控和日志管理
+- 备份策略
+- 安全配置
+- 性能优化
+
+## 🔒 安全特性
+
+- **输入验证**：所有用户输入都经过严格验证
+- **请求限制**：防止暴力攻击和 DDoS
+- **CORS 配置**：跨域请求安全控制
+- **安全头**：Helmet.js 提供的安全头配置
+- **JWT 认证**：安全的用户身份验证
+- **密码加密**：bcrypt 加密存储
+- **文件上传限制**：文件类型和大小限制
+
+## 📊 监控和日志
+
+### 日志系统
+
+- 结构化日志记录
+- 不同环境的日志级别控制
+- 自动日志轮转
+- 错误日志单独记录
+
+### 监控指标
+
+- 应用健康状态
+- 数据库连接状态
+- 系统资源使用情况
+- API 响应时间
+- 错误率统计
 | 普通用户   | 13800000005 | 123456 | 普通客户   |
 | 普通用户   | 13800000006 | 123456 | 普通客户   |
 
@@ -253,14 +348,6 @@ docker build -t fix-platform-server .
 - [ ] 多语言支持
 - [ ] 系统监控
 
-## 🤝 贡献指南
-
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
@@ -269,8 +356,7 @@ docker build -t fix-platform-server .
 
 如有问题或建议，请通过以下方式联系：
 
-- 项目 Issues: [GitHub Issues](https://github.com/your-username/Fix-Platform/issues)
-- 邮箱: your-email@example.com
+- 项目 Issues: [GitHub Issues](https://github.com/JackWPP/Fix-Platform/issues)
 
 ## 🙏 致谢
 

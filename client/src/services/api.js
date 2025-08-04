@@ -42,6 +42,9 @@ api.interceptors.response.use(
 
 // 认证相关API
 export const authAPI = {
+  // 获取认证配置
+  getAuthConfig: () => api.get('/auth/config'),
+  
   // 发送验证码
   sendCode: (phone) => api.post('/auth/send-code', { phone }),
   

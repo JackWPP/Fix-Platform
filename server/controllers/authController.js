@@ -9,21 +9,44 @@ const generateToken = (userId) => {
   });
 };
 
-// 发送验证码（模拟）- 保留用于注册
+// 发送验证码 - 根据环境变量决定是否启用
 const sendCode = async (req, res) => {
   try {
     const { phone } = req.body;
     
+    // 检查是否启用短信验证码功能
+    const smsEnabled = process.env.ENABLE_SMS_VERIFICATION === 'true';
+    
+    if (!smsEnabled) {
+      return res.json({ 
+        success: true, 
+        message: '验证码功能已禁用，请使用密码登录' 
+      });
+    }
+    
+    // 验证手机号格式
+    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '请输入有效的手机号' 
+      });
+    }
+    
     // 在实际应用中，这里会调用短信服务发送验证码
-    // 为了简化，我们直接返回成功
+    // 当前为模拟模式
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`模拟发送验证码到 ${phone}: 123456`);
+    }
+    
     res.json({ 
       success: true, 
-      message: '验证码已发送（模拟）' 
+      message: smsEnabled ? '验证码已发送' : '验证码已发送（模拟）' 
     });
   } catch (error) {
+    console.error('发送验证码错误:', error);
     res.status(500).json({ 
       success: false, 
-      message: error.message 
+      message: '发送验证码失败，请稍后重试' 
     });
   }
 };
@@ -41,8 +64,43 @@ const register = async (req, res) => {
       });
     }
     
-    // 在实际应用中，这里会验证验证码
-    // 为了简化，我们跳过验证码验证
+    // 验证手机号格式
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '请输入有效的手机号' 
+      });
+    }
+    
+    // 验证密码强度
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '密码至少需要6个字符' 
+      });
+    }
+    
+    // 检查是否启用短信验证码功能
+    const smsEnabled = process.env.ENABLE_SMS_VERIFICATION === 'true';
+    
+    // 如果启用了短信验证码，需要验证验证码
+    if (smsEnabled) {
+      if (!code) {
+        return res.status(400).json({ 
+          success: false, 
+          message: '请输入验证码' 
+        });
+      }
+      
+      // 在实际应用中，这里会验证验证码
+      // 当前为模拟验证（开发环境接受123456）
+      if (process.env.NODE_ENV === 'development' && code !== '123456') {
+        return res.status(400).json({ 
+          success: false, 
+          message: '验证码错误（开发环境请使用123456）' 
+        });
+      }
+    }
     
     // 检查用户是否已存在
     let existingUser = await User.findOne({ 
@@ -70,6 +128,8 @@ const register = async (req, res) => {
     // 生成token
     const token = generateToken(user._id);
     
+    console.log(`新用户注册成功: ${phone} (${user.role})`);
+    
     res.status(201).json({
       success: true,
       token,
@@ -82,9 +142,10 @@ const register = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('用户注册错误:', error);
     res.status(500).json({ 
       success: false, 
-      message: error.message 
+      message: '注册失败，请稍后重试' 
     });
   }
 };
@@ -113,7 +174,7 @@ const login = async (req, res) => {
       user = await User.findOne({ username: identifier });
     }
     
-    console.log('查询用户:', identifier, '结果:', user ? '找到' : '未找到');
+    console.log(`用户登录尝试: ${identifier} (${user ? '找到用户' : '用户不存在'})`);
     
     if (!user) {
       return res.status(404).json({ 
@@ -134,6 +195,8 @@ const login = async (req, res) => {
     // 生成token
     const token = generateToken(user._id);
     
+    console.log(`用户密码登录成功: ${identifier} (${user.role})`);
+    
     res.json({
       success: true,
       token,
@@ -146,20 +209,53 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('用户登录错误:', error);
     res.status(500).json({ 
       success: false, 
-      message: error.message 
+      message: '登录失败，请稍后重试' 
     });
   }
 };
 
-// 验证码登录（保留用于特殊情况）
+// 验证码登录（当启用短信验证码时使用）
 const loginWithCode = async (req, res) => {
   try {
     const { phone, code } = req.body;
     
+    // 检查是否启用短信验证码功能
+    const smsEnabled = process.env.ENABLE_SMS_VERIFICATION === 'true';
+    
+    if (!smsEnabled) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '验证码登录功能已禁用，请使用密码登录' 
+      });
+    }
+    
+    // 验证必填字段
+    if (!phone || !code) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '请输入手机号和验证码' 
+      });
+    }
+    
+    // 验证手机号格式
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '请输入有效的手机号' 
+      });
+    }
+    
     // 在实际应用中，这里会验证验证码
-    // 为了简化，我们跳过验证码验证
+    // 当前为模拟验证（开发环境接受123456）
+    if (process.env.NODE_ENV === 'development' && code !== '123456') {
+      return res.status(400).json({ 
+        success: false, 
+        message: '验证码错误（开发环境请使用123456）' 
+      });
+    }
     
     // 查找用户
     const user = await User.findOne({ phone });
@@ -174,6 +270,8 @@ const loginWithCode = async (req, res) => {
     // 生成token
     const token = generateToken(user._id);
     
+    console.log(`用户验证码登录成功: ${phone} (${user.role})`);
+    
     res.json({
       success: true,
       token,
@@ -186,9 +284,10 @@ const loginWithCode = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('验证码登录错误:', error);
     res.status(500).json({ 
       success: false, 
-      message: error.message 
+      message: '登录失败，请稍后重试' 
     });
   }
 };
@@ -264,10 +363,32 @@ const adminRegister = async (req, res) => {
   }
 };
 
+// 获取认证配置信息
+const getAuthConfig = async (req, res) => {
+  try {
+    const config = {
+      smsEnabled: process.env.ENABLE_SMS_VERIFICATION === 'true',
+      environment: process.env.NODE_ENV || 'development'
+    };
+    
+    res.json({
+      success: true,
+      config
+    });
+  } catch (error) {
+    console.error('获取认证配置错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取配置失败'
+    });
+  }
+};
+
 module.exports = {
   sendCode,
   register,
   login,
   loginWithCode,
-  adminRegister
+  adminRegister,
+  getAuthConfig
 };

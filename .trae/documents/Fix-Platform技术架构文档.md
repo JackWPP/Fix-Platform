@@ -2,9 +2,141 @@
 
 ```
 
-## 7. 项目配置管理
+## 7. 生产环境配置
 
-### 7.1 版本控制配置
+### 7.1 环境变量管理
+
+**核心环境变量**
+
+```bash
+# 应用配置
+NODE_ENV=production
+PORT=5000
+CLIENT_URL=https://your-frontend-domain.com
+
+# 数据库配置
+MONGODB_URI=mongodb://localhost:27017/fix-platform
+
+# JWT认证配置
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=7d
+
+# 短信验证码配置
+ENABLE_SMS_VERIFICATION=false
+SMS_API_KEY=your-sms-api-key
+SMS_API_SECRET=your-sms-api-secret
+
+# 文件上传配置
+UPLOAD_PATH=./uploads
+MAX_FILE_SIZE=5242880
+
+# 日志配置
+LOG_LEVEL=info
+LOG_FILE=./logs/app.log
+```
+
+### 7.2 安全性增强
+
+**认证与授权**
+- JWT令牌认证，支持自定义过期时间
+- bcrypt密码加密，盐值轮数为10
+- 基于角色的访问控制（RBAC）
+- API请求频率限制
+
+**数据安全**
+- 输入数据验证和清理
+- SQL注入防护（NoSQL注入防护）
+- XSS攻击防护
+- CORS跨域配置
+
+**传输安全**
+- HTTPS强制重定向（生产环境）
+- 安全头部设置（helmet中间件）
+- 敏感信息脱敏处理
+
+### 7.3 错误处理与日志
+
+**统一错误处理**
+```javascript
+// 全局错误处理中间件
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = process.env.NODE_ENV === 'production' 
+    ? '服务器内部错误' 
+    : err.message;
+  
+  // 记录错误日志
+  logger.error({
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  
+  res.status(statusCode).json({
+    success: false,
+    message,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+```
+
+**日志管理**
+- 结构化日志记录（JSON格式）
+- 日志级别分类（error, warn, info, debug）
+- 日志轮转和归档
+- 错误追踪和性能监控
+
+### 7.4 健康检查
+
+**系统监控**
+```javascript
+// 健康检查端点
+app.get('/api/health', async (req, res) => {
+  try {
+    // 检查数据库连接
+    await mongoose.connection.db.admin().ping();
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      database: 'connected',
+      version: process.env.npm_package_version || '1.0.0'
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      error: error.message
+    });
+  }
+});
+```
+
+### 7.5 性能优化
+
+**数据库优化**
+- 索引优化策略
+- 查询性能监控
+- 连接池配置
+- 数据分页处理
+
+**缓存策略**
+- API响应缓存
+- 静态资源缓存
+- 数据库查询缓存
+
+**请求优化**
+- 请求压缩（gzip）
+- 请求限流和防抖
+- 异步处理优化
+
+### 7.6 项目配置管理
+
+### 7.6.1 版本控制配置
 
 **.gitignore 配置优化**
 
@@ -14,7 +146,7 @@
 - 排除敏感信息如环境变量和密钥
 - 忽略构建输出和依赖目录
 
-### 7.2 部署配置
+### 7.6.2 部署配置
 
 **.vercelignore 配置**
 
@@ -24,12 +156,12 @@
 - 排除日志和临时文件
 - 保留项目文档用于部署后查看
 
-### 7.3 环境管理
+### 7.6.3 环境管理
 
 支持多环境配置：
-- **开发环境**：本地MongoDB，详细日志
-- **测试环境**：云数据库，测试数据
-- **生产环境**：生产数据库，优化配置
+- **开发环境**：本地MongoDB，详细日志，热重载
+- **测试环境**：云数据库，测试数据，模拟生产环境
+- **生产环境**：生产数据库，优化配置，性能监控
 
 ## 8. 部署架构
 
@@ -54,11 +186,13 @@
 ### 9.1 项目文档结构
 
 ```
+
 .trae/documents/
 ├── Fix-Platform产品需求文档.md
 ├── Fix-Platform技术架构文档.md
 └── Fix-Platform项目现状分析与开发计划.md
-```
+
+````
 
 ### 9.2 文档维护
 
@@ -86,7 +220,7 @@ graph TD
     subgraph "数据层"
         D
     end
-```
+````
 
 ## 2. 技术描述
 
@@ -104,18 +238,21 @@ graph TD
 
 * 项目配置：优化的.gitignore和.vercelignore配置，文档管理系统
 
+* 生产环境：环境变量管理 + 安全性增强 + 错误处理 + 健康检查 + 日志管理
+
 ## 3. 路由定义
 
 | 路由                | 用途                 |
 | ----------------- | ------------------ |
 | /                 | 首页，显示平台介绍和快速操作入口   |
-| /login            | 登录页面，支持手机号验证码登录    |
+| /login            | 登录页面，支持密码登录和验证码登录（可配置） |
 | /orders           | 订单管理页面，显示用户订单列表和操作 |
 | /create-order     | 创建订单页面，用户提交维修申请    |
 | /profile          | 个人中心页面，用户信息管理      |
 | /admin            | 管理员仪表盘（根据角色动态渲染）   |
 | /repairman        | 维修员工作台（根据角色动态渲染）   |
 | /customer-service | 客服工作台（根据角色动态渲染）    |
+| /health           | 系统健康检查端点           |
 
 ## 4. API定义
 
@@ -144,7 +281,16 @@ POST /api/auth/send-code
 POST /api/auth/login
 ```
 
-请求参数：
+支持多种登录方式（根据环境变量ENABLE_SMS_VERIFICATION配置）：
+
+密码登录请求参数：
+
+| 参数名      | 参数类型   | 是否必需 | 描述      |
+| -------- | ------ | ---- | ------- |
+| phone    | string | true | 用户手机号   |
+| password | string | true | 用户密码    |
+
+验证码登录请求参数：
 
 | 参数名   | 参数类型   | 是否必需 | 描述    |
 | ----- | ------ | ---- | ----- |
@@ -158,6 +304,24 @@ POST /api/auth/login
 | success | boolean | 登录是否成功  |
 | token   | string  | JWT认证令牌 |
 | user    | object  | 用户信息对象  |
+
+```
+POST /api/auth/register
+```
+
+用户注册接口：
+
+| 参数名      | 参数类型   | 是否必需 | 描述    |
+| -------- | ------ | ---- | ----- |
+| phone    | string | true | 用户手机号 |
+| password | string | true | 用户密码  |
+| name     | string | false | 用户姓名  |
+
+```
+GET /api/health
+```
+
+系统健康检查接口，返回系统状态和数据库连接状态。
 
 **订单管理相关**
 
@@ -239,9 +403,9 @@ POST /api/payment/initiate
 
 请求参数：
 
-| 参数名 | 参数类型 | 是否必需 | 描述 |
-|--------|----------|----------|------|
-| orderId | string | true | 订单ID |
+| 参数名           | 参数类型   | 是否必需 | 描述   |
+| ------------- | ------ | ---- | ---- |
+| orderId       | string | true | 订单ID |
 | paymentMethod | string | true | 支付方式 |
 
 ```
