@@ -1,0 +1,46 @@
+{
+  "name": "fix-platform",
+  "version": "1.0.0",
+  "description": "Fix Platform - 维修服务平台",
+  "main": "api/index.js",
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "start": "node api/index.js",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm start\"",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.6.3",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.7.4",
+    "winston": "^3.11.0",
+    "compression": "^1.7.4",
+    "express-mongo-sanitize": "^2.2.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/fix-platform.git"
+  },
+  "keywords": [
+    "fix",
+    "platform",
+    "repair",
+    "service"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
