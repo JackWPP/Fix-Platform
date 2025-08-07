@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Tag, Button, Space, Input, Select, DatePicker, message, Modal, Descriptions } from 'antd';
+import { Table, Card, Tag, Button, Space, Input, Select, DatePicker, Modal, Descriptions } from 'antd';
 import { SearchOutlined, EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../../store';
 import { orderAPI, handleAPIError } from '../../utils/api';
+import { message } from '../../utils/message';
 import type { ColumnsType } from 'antd/es/table';
 
 const { Search } = Input;

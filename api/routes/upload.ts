@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { authenticateToken, requireUser } from '../middleware/auth.js';
+import { authenticateToken, requireUser } from '../middleware/auth';
 
 const router = express.Router();
 

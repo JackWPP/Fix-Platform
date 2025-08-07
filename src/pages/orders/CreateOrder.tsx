@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Form, Input, Select, DatePicker, Button, Upload, message, Space, Radio } from 'antd';
+import { Card, Form, Input, Select, DatePicker, Button, Upload, Space, Radio } from 'antd';
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import { orderAPI, uploadAPI, handleAPIError } from '../../utils/api';
+import { message } from '../../utils/message';
 import type { UploadFile } from 'antd/es/upload/interface';
 import dayjs from 'dayjs';
 
@@ -42,14 +43,20 @@ const CreateOrder: React.FC = () => {
         ]);
         
         if (deviceResponse.data?.success) {
-          setDeviceTypes(deviceResponse.data.data.device_types || []);
+          setDeviceTypes(deviceResponse.data.data.deviceTypes || []);
+        } else {
+          message.error('获取设备类型失败');
         }
         
         if (serviceResponse.data?.success) {
-          setServiceTypes(serviceResponse.data.data.service_types || []);
+          setServiceTypes(serviceResponse.data.data.serviceTypes || []);
+        } else {
+          message.error('获取服务类型失败');
         }
       } catch (error) {
         console.error('获取元数据失败:', error);
+        const apiError = handleAPIError(error);
+        message.error(`获取元数据失败: ${apiError.message}`);
       }
     };
 
@@ -179,12 +186,20 @@ const CreateOrder: React.FC = () => {
               label="设备类型"
               rules={[{ required: true, message: '请选择设备类型' }]}
             >
-              <Select placeholder="请选择设备类型">
-                <Option value="笔记本电脑">笔记本电脑</Option>
-                <Option value="台式电脑">台式电脑</Option>
-                <Option value="手机">手机</Option>
-                <Option value="平板电脑">平板电脑</Option>
-                <Option value="其他">其他</Option>
+              <Select placeholder="请选择设备类型" loading={deviceTypes.length === 0}>
+                {deviceTypes.length > 0 ? (
+                  deviceTypes.map(type => (
+                    <Option key={type.id} value={type.code}>{type.name}</Option>
+                  ))
+                ) : (
+                  <>
+                    <Option value="笔记本电脑">笔记本电脑</Option>
+                    <Option value="台式电脑">台式电脑</Option>
+                    <Option value="手机">手机</Option>
+                    <Option value="平板电脑">平板电脑</Option>
+                    <Option value="其他">其他</Option>
+                  </>
+                )}
               </Select>
             </Form.Item>
 

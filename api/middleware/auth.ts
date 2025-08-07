@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken, getUserById } from '../utils/auth.js';
+import { verifyToken, getUserById } from '../utils/auth';
 
 // 扩展Request接口，添加user属性
 declare global {
@@ -130,7 +130,7 @@ export const checkOrderAccess = async (req: Request, res: Response, next: NextFu
     }
 
     // 导入supabase客户端
-    const { supabase } = await import('../config/database.js');
+    const { supabase } = await import('../config/database');
     
     // 查询订单信息
     const { data: order, error } = await supabase

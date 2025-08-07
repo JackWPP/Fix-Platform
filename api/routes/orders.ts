@@ -1,7 +1,7 @@
 import express from 'express';
-import { supabase } from '../config/database.js';
-import { authenticateToken, requireAdmin, requireUser, checkOrderAccess } from '../middleware/auth.js';
-import { sendOrderNotification } from '../utils/sms.js';
+import { supabase } from '../config/database';
+import { authenticateToken, requireAdmin, requireUser, checkOrderAccess } from '../middleware/auth';
+import { sendOrderNotification } from '../utils/sms';
 
 const router = express.Router();
 

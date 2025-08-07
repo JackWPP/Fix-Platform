@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Tabs, Typography, App, Card } from 'antd';
+import { Form, Input, Button, Tabs, Typography, Card } from 'antd';
 import { PhoneOutlined, LockOutlined, SafetyOutlined, UserOutlined, SettingOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore, useAppStore } from '../../store';
 import { authAPI, handleAPIError } from '../../utils/api';
+import { message } from '../../utils/message';
 
 const { Text } = Typography;
 
 const Login: React.FC = () => {
-  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [passwordForm] = Form.useForm();
   const [activeTab, setActiveTab] = useState('sms');

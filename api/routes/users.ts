@@ -1,7 +1,7 @@
 import express from 'express';
-import { supabase } from '../config/database.js';
-import { authenticateToken, requireAdmin } from '../middleware/auth.js';
-import { hashPassword, validatePhone } from '../utils/auth.js';
+import { supabase } from '../config/database';
+import { authenticateToken, requireAdmin } from '../middleware/auth';
+import { hashPassword, validatePhone } from '../utils/auth';
 
 const router = express.Router();
 
