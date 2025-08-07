@@ -1,0 +1,16 @@
+# TODO:
+
+- [x] 1: 初始化后端框架并配置Supabase数据库连接 (priority: High)
+- [x] 2: 创建数据库表结构和初始化数据 (priority: High)
+- [x] 3: 实现用户认证系统（手机验证码登录） (priority: High)
+- [x] 4: 开发订单管理API接口 (priority: High)
+- [x] 6: 修复Ant Design message组件的context警告问题 (priority: High)
+- [x] 7: 修复Drawer组件的bodyStyle废弃警告 (priority: High)
+- [x] 8: 修复Menu组件的重复路由key问题 (priority: High)
+- [x] 11: 修复后端API数据库查询错误 (priority: High)
+- [x] 12: 修复前端TypeScript类型错误 (priority: High)
+- [x] 5: 创建前端路由和基础布局组件 (priority: Medium)
+- [x] 9: 实现维修员端界面（工作台、订单处理等） (priority: Medium)
+- [x] 10: 实现客服端和管理员端界面 (priority: Medium)
+- [x] 13: 完善管理员端用户管理功能 (priority: Medium)
+- [x] 14: 实现系统设置和配置管理 (priority: Low)
