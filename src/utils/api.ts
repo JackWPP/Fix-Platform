@@ -1,8 +1,36 @@
 import axios from 'axios';
 
+// 订单数据类型
+interface OrderData {
+  device_type_id: string;
+  service_type_id: string;
+  contact_name: string;
+  contact_phone: string;
+  address: string;
+  description?: string;
+  images?: string[];
+}
+
+// 用户数据类型
+interface UserData {
+  name: string;
+  phone: string;
+  role: string;
+  password?: string;
+}
+
+// 查询参数类型
+interface QueryParams {
+  page?: number;
+  limit?: number;
+  status?: string;
+  role?: string;
+  [key: string]: unknown;
+}
+
 // 创建axios实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -68,11 +96,11 @@ export const authAPI = {
 
 export const orderAPI = {
   // 创建订单
-  createOrder: (orderData: any) => 
+  createOrder: (orderData: OrderData) => 
     api.post('/orders', orderData),
   
   // 获取订单列表
-  getOrders: (params?: any) => 
+  getOrders: (params?: QueryParams) => 
     api.get('/orders', { params }),
   
   // 获取订单详情
@@ -88,7 +116,7 @@ export const orderAPI = {
     api.delete(`/orders/${orderId}`),
   
   // 更新订单
-  updateOrder: (orderId: string, updateData: any) => 
+  updateOrder: (orderId: string, updateData: Partial<OrderData>) => 
     api.put(`/orders/${orderId}`, updateData),
   
   // 分配订单
@@ -114,7 +142,7 @@ export const orderAPI = {
 
 export const userAPI = {
   // 获取用户列表
-  getUsers: (params?: any) => 
+  getUsers: (params?: QueryParams) => 
     api.get('/users', { params }),
   
   // 根据ID获取用户
@@ -126,7 +154,7 @@ export const userAPI = {
     api.get('/users/technicians'),
   
   // 创建用户
-  createUser: (userData: any) => 
+  createUser: (userData: UserData) => 
     api.post('/users', userData),
   
   // 获取用户详情
@@ -134,7 +162,7 @@ export const userAPI = {
     api.get(`/users/${userId}`),
   
   // 更新用户信息
-  updateUser: (userId: string, userData: any) => 
+  updateUser: (userId: string, userData: Partial<UserData>) => 
     api.put(`/users/${userId}`, userData),
   
   // 删除用户
@@ -188,29 +216,50 @@ export const uploadAPI = {
     api.get(`/upload/info/${fileName}`),
 };
 
+// 错误响应类型
+interface ErrorResponse {
+  success: false;
+  message: string;
+  status?: number;
+}
+
 // 通用错误处理
-export const handleAPIError = (error: any) => {
-  if (error.response) {
-    // 服务器返回错误状态码
-    const { status, data } = error.response;
-    return {
-      success: false,
-      message: data?.message || `请求失败 (${status})`,
-      status,
-    };
-  } else if (error.request) {
-    // 请求发送但没有收到响应
+export const handleAPIError = (error: unknown): ErrorResponse => {
+  // 检查是否为axios错误
+  if (error && typeof error === 'object' && 'response' in error) {
+    const axiosError = error as { response?: { status: number; data?: { message?: string } } };
+    if (axiosError.response) {
+      // 服务器返回错误状态码
+      const { status, data } = axiosError.response;
+      return {
+        success: false,
+        message: data?.message || `请求失败 (${status})`,
+        status,
+      };
+    }
+  }
+  
+  // 检查是否为网络错误
+  if (error && typeof error === 'object' && 'request' in error) {
     return {
       success: false,
       message: '网络连接失败，请检查网络设置',
     };
-  } else {
-    // 其他错误
+  }
+  
+  // 检查是否为Error对象
+  if (error instanceof Error) {
     return {
       success: false,
-      message: error.message || '未知错误',
+      message: error.message,
     };
   }
+  
+  // 其他错误
+  return {
+    success: false,
+    message: '未知错误',
+  };
 };
 
 export default api;

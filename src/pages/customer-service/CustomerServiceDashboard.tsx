@@ -18,7 +18,7 @@ import { App } from 'antd';
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
-const { TabPane } = Tabs;
+// const { TabPane } = Tabs; // 已废弃，使用 items 属性
 
 const CustomerServiceDashboard: React.FC = () => {
   const { message } = App.useApp();
@@ -342,28 +342,39 @@ const CustomerServiceDashboard: React.FC = () => {
 
       {/* 订单管理标签页 */}
       <Card>
-        <Tabs defaultActiveKey="pending">
-          <TabPane tab={`待处理订单 (${stats.pendingOrders})`} key="pending">
-            <Table
-              columns={pendingColumns}
-              dataSource={orders.filter(order => ['pending', 'assigned'].includes(order.status))}
-              rowKey="id"
-              loading={loading}
-              pagination={{ pageSize: 10 }}
-              scroll={{ x: 1200 }}
-            />
-          </TabPane>
-          <TabPane tab="所有订单" key="all">
-            <Table
-              columns={allOrdersColumns}
-              dataSource={orders}
-              rowKey="id"
-              loading={loading}
-              pagination={{ pageSize: 10 }}
-              scroll={{ x: 1000 }}
-            />
-          </TabPane>
-        </Tabs>
+        <Tabs 
+          defaultActiveKey="pending"
+          items={[
+            {
+              key: 'pending',
+              label: `待处理订单 (${stats.pendingOrders})`,
+              children: (
+                <Table
+                  columns={pendingColumns}
+                  dataSource={orders.filter(order => ['pending', 'assigned'].includes(order.status))}
+                  rowKey="id"
+                  loading={loading}
+                  pagination={{ pageSize: 10 }}
+                  scroll={{ x: 1200 }}
+                />
+              ),
+            },
+            {
+              key: 'all',
+              label: '所有订单',
+              children: (
+                <Table
+                  columns={allOrdersColumns}
+                  dataSource={orders}
+                  rowKey="id"
+                  loading={loading}
+                  pagination={{ pageSize: 10 }}
+                  scroll={{ x: 1000 }}
+                />
+              ),
+            },
+          ]}
+        />
       </Card>
 
       {/* 分配订单模态框 */}

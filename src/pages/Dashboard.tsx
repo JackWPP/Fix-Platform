@@ -15,6 +15,18 @@ import RepairmanDashboard from './repairman/RepairmanDashboard';
 import CustomerServiceDashboard from './customer-service/CustomerServiceDashboard';
 import AdminDashboard from './admin/AdminDashboard';
 
+// 订单数据接口
+interface Order {
+  id: string;
+  status: string;
+  user_id: string;
+  assigned_to?: string;
+  contact_name: string;
+  created_at: string;
+  device_types: { name: string };
+  service_types: { name: string };
+}
+
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
@@ -43,18 +55,18 @@ const Dashboard: React.FC = () => {
         
         // 计算统计数据
         const totalOrders = ordersList.length;
-        const pendingOrders = ordersList.filter((order: any) => 
+        const pendingOrders = ordersList.filter((order: Order) => 
           ['pending', 'assigned'].includes(order.status)
         ).length;
-        const completedOrders = ordersList.filter((order: any) => 
+        const completedOrders = ordersList.filter((order: Order) => 
           order.status === 'completed'
         ).length;
         
         let myOrders = 0;
         if (user?.role === 'user') {
-          myOrders = ordersList.filter((order: any) => order.user_id === user.id).length;
+          myOrders = ordersList.filter((order: Order) => order.user_id === user.id).length;
         } else if (user?.role === 'repairman') {
-          myOrders = ordersList.filter((order: any) => order.assigned_to === user.id).length;
+          myOrders = ordersList.filter((order: Order) => order.assigned_to === user.id).length;
         }
         
         setStats({
@@ -74,7 +86,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   // 获取状态标签
   const getStatusTag = (status: string) => {
@@ -131,7 +143,7 @@ const Dashboard: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      render: (_, record: any) => (
+      render: (_, record: Order) => (
         <Button
           type="link"
           icon={<EyeOutlined />}

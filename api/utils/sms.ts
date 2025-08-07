@@ -1,5 +1,13 @@
 import Core from '@alicloud/pop-core';
 
+// 阿里云SMS API响应接口
+interface SMSResponse {
+  Code: string;
+  Message?: string;
+  RequestId?: string;
+  BizId?: string;
+}
+
 // 只在生产环境或配置了阿里云密钥时初始化客户端
 let client: Core | null = null;
 
@@ -41,7 +49,7 @@ export const sendSMS = async (phone: string, code: string): Promise<boolean> => 
       throw new Error('SMS client not initialized');
     }
 
-    const result = await client.request('SendSms', params, requestOption) as any;
+    const result = await client.request('SendSms', params, requestOption) as SMSResponse;
     
     if (result.Code === 'OK') {
       console.log(`短信发送成功: ${phone}`);
@@ -100,7 +108,7 @@ export const sendOrderNotification = async (
       throw new Error('SMS client not initialized');
     }
 
-    const result = await client.request('SendSms', smsParams, requestOption) as any;
+    const result = await client.request('SendSms', smsParams, requestOption) as SMSResponse;
     
     if (result.Code === 'OK') {
       console.log(`订单通知短信发送成功: ${phone}`);

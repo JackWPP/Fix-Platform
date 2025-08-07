@@ -40,7 +40,8 @@ const ProtectedRoute = ({ children, requiredRoles }: {
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
   
-  if (isAuthenticated && user) {
+  // 只有在访问登录页面时才进行重定向，访问登录入口页面时不重定向
+  if (isAuthenticated && user && window.location.pathname === '/login') {
     // 根据用户角色跳转到相应页面
     switch (user.role) {
       case 'admin':

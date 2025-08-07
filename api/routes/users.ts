@@ -1,6 +1,6 @@
 import express from 'express';
 import { supabase } from '../config/database.js';
-import { authenticateToken, requireAdmin, requireUser } from '../middleware/auth.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { hashPassword, validatePhone } from '../utils/auth.js';
 
 const router = express.Router();
@@ -8,12 +8,12 @@ const router = express.Router();
 // 获取用户列表（管理员）
 router.get('/', authenticateToken, requireAdmin, async (req, res) => {
   try {
-    const { page = 1, limit = 10, role, search } = req.query;
+    const { page = 1, limit = 10, role, search, is_active } = req.query;
     const offset = (Number(page) - 1) * Number(limit);
 
     let query = supabase
       .from('users')
-      .select('id, phone, name, role, created_at, updated_at')
+      .select('id, phone, name, role, is_active, created_at, updated_at')
       .order('created_at', { ascending: false })
       .range(offset, offset + Number(limit) - 1);
 
@@ -25,6 +25,11 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
     // 搜索过滤
     if (search) {
       query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%`);
+    }
+
+    // 状态过滤
+    if (is_active !== undefined && is_active !== '') {
+      query = query.eq('is_active', is_active === 'true');
     }
 
     const { data: users, error } = await query;
@@ -137,9 +142,10 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
         phone,
         name,
         role,
-        password: hashedPassword
+        password: hashedPassword,
+        is_active: true
       })
-      .select('id, phone, name, role, created_at')
+      .select('id, phone, name, role, is_active, created_at')
       .single();
 
     if (error) {
@@ -179,7 +185,7 @@ router.get('/:userId', authenticateToken, async (req, res) => {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, phone, name, role, created_at, updated_at')
+      .select('id, phone, name, role, is_active, created_at, updated_at')
       .eq('id', userId)
       .single();
 
@@ -208,7 +214,7 @@ router.get('/:userId', authenticateToken, async (req, res) => {
 router.put('/:userId', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { name, phone, role } = req.body;
+    const { name, phone, role, is_active } = req.body;
 
     // 检查权限：用户只能更新自己的基本信息，管理员可以更新所有用户
     if (req.user!.role !== 'admin' && req.user!.id !== userId) {
@@ -254,12 +260,15 @@ router.put('/:userId', authenticateToken, async (req, res) => {
         updateData.role = role;
       }
     }
+    if (is_active !== undefined && req.user!.role === 'admin') {
+      updateData.is_active = Boolean(is_active);
+    }
 
     const { data: user, error } = await supabase
       .from('users')
       .update(updateData)
       .eq('id', userId)
-      .select('id, phone, name, role, created_at, updated_at')
+      .select('id, phone, name, role, is_active, created_at, updated_at')
       .single();
 
     if (error) {

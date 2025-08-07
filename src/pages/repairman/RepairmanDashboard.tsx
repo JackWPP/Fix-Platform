@@ -154,10 +154,7 @@ const RepairmanDashboard: React.FC = () => {
     if (!selectedOrder) return;
     
     try {
-      const response = await orderAPI.updateOrder(selectedOrder.id, {
-        status: values.status,
-        notes: values.notes,
-      });
+      const response = await orderAPI.updateOrderStatus(selectedOrder.id, values.status, values.notes);
       
       if (response.data?.success) {
         message.success('订单状态更新成功');

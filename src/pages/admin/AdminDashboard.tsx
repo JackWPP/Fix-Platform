@@ -1,32 +1,61 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, Table, Tag, Button, Typography, Space, Tabs, Progress, List, Avatar } from 'antd';
 import {
-  SettingOutlined,
-  UserOutlined,
   FileTextOutlined,
+  UserOutlined,
   DollarOutlined,
   TrophyOutlined,
-  EyeOutlined,
-  PlusOutlined,
-  TeamOutlined,
   ToolOutlined,
   CustomerServiceOutlined,
+  TeamOutlined,
+  PlusOutlined,
+  SettingOutlined,
+  EyeOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, useOrderStore } from '../../store';
 import { orderAPI, userAPI, handleAPIError } from '../../utils/api';
 import { App } from 'antd';
 
+// 用户数据接口
+interface User {
+  id: string;
+  name: string;
+  phone: string;
+  role: string;
+  created_at: string;
+}
+
+// 订单数据接口
+interface Order {
+  id: string;
+  status: string;
+  user_id: string;
+  assigned_to?: string;
+  contact_name: string;
+  created_at: string;
+  device_types: { name: string };
+  service_types: { name: string };
+  assigned_user?: { name: string };
+}
+
+// 维修员统计接口
+interface RepairmanStats extends User {
+  assignedCount: number;
+  completedCount: number;
+  completionRate: number;
+}
+
 const { Title, Text } = Typography;
-const { TabPane } = Tabs;
 
 const AdminDashboard: React.FC = () => {
   const { message } = App.useApp();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { orders, setOrders } = useOrderStore();
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalUsers: 0,
@@ -37,34 +66,41 @@ const AdminDashboard: React.FC = () => {
     todayOrders: 0,
     monthlyOrders: 0,
   });
-  const [topRepairmen, setTopRepairmen] = useState<any[]>([]);
+  const [topRepairmen, setTopRepairmen] = useState<RepairmanStats[]>([]);
 
   // 获取管理员数据
   const fetchAdminData = async () => {
     try {
       setLoading(true);
+      console.log('开始获取管理员数据...');
+      console.log('当前用户:', user);
+      console.log('认证状态:', isAuthenticated);
+      console.log('Token:', localStorage.getItem('auth_token'));
       
       // 获取所有订单
-      const ordersResponse = await orderAPI.getOrders({ limit: 1000 });
+      const ordersResponse = await orderAPI.getOrders({ limit: 1000 }).catch(err => {
+        console.error('获取订单数据失败:', err);
+        throw err;
+      });
       if (ordersResponse.data.success) {
         const ordersList = ordersResponse.data.data.orders;
         setOrders(ordersList);
         
         // 计算订单统计
         const totalOrders = ordersList.length;
-        const completedOrders = ordersList.filter((order: any) => order.status === 'completed').length;
+        const completedOrders = ordersList.filter((order: Order) => order.status === 'completed').length;
         const completionRate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
         
         // 今日订单
         const today = new Date().toDateString();
-        const todayOrders = ordersList.filter((order: any) => 
+        const todayOrders = ordersList.filter((order: Order) => 
           new Date(order.created_at).toDateString() === today
         ).length;
         
         // 本月订单
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
-        const monthlyOrders = ordersList.filter((order: any) => {
+        const monthlyOrders = ordersList.filter((order: Order) => {
           const orderDate = new Date(order.created_at);
           return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
         }).length;
@@ -83,20 +119,23 @@ const AdminDashboard: React.FC = () => {
       }
       
       // 获取所有用户
-      const usersResponse = await userAPI.getUsers({ limit: 1000 });
+        const usersResponse = await userAPI.getUsers({ limit: 1000 }).catch(err => {
+          console.error('获取用户数据失败:', err);
+          throw err;
+        });
       if (usersResponse.data.success) {
         const usersList = usersResponse.data.data.users;
         setUsers(usersList);
         
         const totalUsers = usersList.length;
-        const repairmenCount = usersList.filter((u: any) => u.role === 'repairman').length;
-        const customerServiceCount = usersList.filter((u: any) => u.role === 'customer_service').length;
+        const repairmenCount = usersList.filter((u: User) => u.role === 'repairman').length;
+        const customerServiceCount = usersList.filter((u: User) => u.role === 'customer_service').length;
         
         // 计算维修员绩效
-        const repairmen = usersList.filter((u: any) => u.role === 'repairman');
-        const repairmenStats = repairmen.map((repairman: any) => {
-          const assignedOrders = orders.filter((order: any) => order.assigned_to === repairman.id);
-          const completedOrders = assignedOrders.filter((order: any) => order.status === 'completed');
+        const repairmen = usersList.filter((u: User) => u.role === 'repairman');
+        const repairmenStats = repairmen.map((repairman: User): RepairmanStats => {
+          const assignedOrders = orders.filter((order: Order) => order.assigned_to === repairman.id);
+          const completedOrders = assignedOrders.filter((order: Order) => order.status === 'completed');
           return {
             ...repairman,
             assignedCount: assignedOrders.length,
@@ -115,8 +154,24 @@ const AdminDashboard: React.FC = () => {
         }));
       }
     } catch (error) {
+      console.error('获取管理员数据失败:', error);
       const errorInfo = handleAPIError(error);
-      message.error(errorInfo.message);
+      message.error(`数据加载失败: ${errorInfo.message}`);
+      
+      // 设置默认空数据，避免页面崩溃
+      setOrders([]);
+      setUsers([]);
+      setTopRepairmen([]);
+      setStats({
+        totalOrders: 0,
+        completionRate: 0,
+        totalRevenue: 0,
+        todayOrders: 0,
+        monthlyOrders: 0,
+        totalUsers: 0,
+        repairmenCount: 0,
+        customerServiceCount: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -343,6 +398,13 @@ const AdminDashboard: React.FC = () => {
             创建订单
           </Button>
           <Button
+            icon={<ReloadOutlined />}
+            onClick={fetchAdminData}
+            loading={loading}
+          >
+            刷新数据
+          </Button>
+          <Button
             icon={<UserOutlined />}
             onClick={() => navigate('/users')}
           >
@@ -367,28 +429,39 @@ const AdminDashboard: React.FC = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
           <Card>
-            <Tabs defaultActiveKey="orders">
-              <TabPane tab="最近订单" key="orders">
-                <Table
-                  columns={recentOrdersColumns}
-                  dataSource={orders.slice(0, 10)}
-                  rowKey="id"
-                  loading={loading}
-                  pagination={false}
-                  scroll={{ x: 800 }}
-                />
-              </TabPane>
-              <TabPane tab="用户管理" key="users">
-                <Table
-                  columns={usersColumns}
-                  dataSource={users.slice(0, 10)}
-                  rowKey="id"
-                  loading={loading}
-                  pagination={false}
-                  scroll={{ x: 600 }}
-                />
-              </TabPane>
-            </Tabs>
+            <Tabs 
+              defaultActiveKey="orders"
+              items={[
+                {
+                  key: 'orders',
+                  label: '最近订单',
+                  children: (
+                    <Table
+                      columns={recentOrdersColumns}
+                      dataSource={orders.slice(0, 10)}
+                      rowKey="id"
+                      loading={loading}
+                      pagination={false}
+                      scroll={{ x: 800 }}
+                    />
+                  ),
+                },
+                {
+                  key: 'users',
+                  label: '用户管理',
+                  children: (
+                    <Table
+                      columns={usersColumns}
+                      dataSource={users.slice(0, 10)}
+                      rowKey="id"
+                      loading={loading}
+                      pagination={false}
+                      scroll={{ x: 600 }}
+                    />
+                  ),
+                },
+              ]}
+            />
           </Card>
         </Col>
         <Col xs={24} lg={8}>
