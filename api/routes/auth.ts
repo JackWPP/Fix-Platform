@@ -12,9 +12,9 @@ import {
   createUser,
   generateToken,
   comparePassword
-} from '../utils/auth.js';
-import { sendSMS } from '../utils/sms.js';
-import { authenticateToken } from '../middleware/auth.js';
+} from '../utils/auth';
+import { sendSMS } from '../utils/sms';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 

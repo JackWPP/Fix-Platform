@@ -1,57 +1,82 @@
-# React + TypeScript + Vite
+# XGX店内部维修下单管理系统
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个现代化的维修服务管理平台，为XGX店提供完整的维修订单管理解决方案。
 
-Currently, two official plugins are available:
+## 🚀 快速开始
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 环境要求
+- Node.js 18+
+- npm 或 yarn
+- Redis 7+
+- Supabase 账号
 
-## Expanding the ESLint configuration
+### 安装和启动
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# 克隆项目
+git clone <repository-url>
+cd Fix-Platform
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# 安装依赖
+npm install
+
+# 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，填入必要的配置信息
+
+# 启动开发服务器
+npm run dev        # 启动前端开发服务器
+npm run server:dev # 启动后端开发服务器
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 访问地址
+- **用户端**: http://localhost:5173
+- **管理员后台**: http://localhost:5173/admin
+- **API服务**: http://localhost:3000
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📚 文档导航
 
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+完整的项目文档位于 `docs/` 目录下：
+
+### 核心文档
+- [📖 项目README](./docs/README.md) - 详细的项目介绍和使用指南
+- [👥 用户手册](./docs/user-manual.md) - 各角色用户的使用说明
+- [🔧 开发文档](./docs/development.md) - 开发环境搭建和开发指南
+- [🏗️ 技术架构](./docs/technical-architecture.md) - 系统架构和技术栈说明
+- [📋 产品需求](./docs/product-requirements.md) - 详细的产品需求文档
+
+### 专业文档
+- [🔌 API参考](./docs/api-reference.md) - 完整的API接口文档
+- [🚀 部署指南](./docs/deployment-guide.md) - 生产环境部署说明
+- [👑 管理员指南](./docs/admin-guide.md) - 管理员后台使用指南
+
+## 🎯 核心功能
+
+- **用户端**: 在线下单、订单跟踪、评价反馈
+- **维修员端**: 接单管理、进度更新、工作台
+- **客服端**: 订单跟进、用户沟通、问题处理
+- **管理员端**: 数据大屏、用户管理、系统设置
+
+## 🛠️ 技术栈
+
+- **前端**: React 18 + TypeScript + Ant Design + Tailwind CSS + Vite
+- **后端**: Node.js + Express + TypeScript
+- **数据库**: Supabase (PostgreSQL)
+- **缓存**: Redis
+- **部署**: Docker + Nginx
+
+## 🧪 测试账号
+
+| 角色 | 手机号 | 密码 | 说明 |
+|------|--------|------|------|
+| 系统管理员 | 13800000001 | admin123 | 管理员后台访问 |
+| 维修员 | 13800000002 | tech123 | 维修员工作台 |
+| 客服人员 | 13800000003 | service123 | 客服管理界面 |
+
+## 📄 许可证
+
+MIT License
+
+## 📞 联系我们
+
+如有问题或建议，请联系开发团队。

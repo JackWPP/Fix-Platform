@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, useOrderStore } from '../store';
-import { orderAPI, userAPI, handleAPIError } from '../utils/api';
+import { orderAPI, handleAPIError } from '../utils/api';
 import RepairmanDashboard from './repairman/RepairmanDashboard';
 import CustomerServiceDashboard from './customer-service/CustomerServiceDashboard';
 import AdminDashboard from './admin/AdminDashboard';
@@ -29,19 +29,6 @@ const Dashboard: React.FC = () => {
     completedOrders: 0,
     myOrders: 0,
   });
-
-  // 根据用户角色显示不同的界面
-  if (user?.role === 'customer_service') {
-    return <CustomerServiceDashboard />;
-  }
-  
-  if (user?.role === 'admin') {
-    return <AdminDashboard />;
-  }
-  
-  if (user?.role === 'repairman') {
-    return <RepairmanDashboard />;
-  }
 
   // 获取统计数据
   const fetchStats = async () => {
@@ -166,6 +153,19 @@ const Dashboard: React.FC = () => {
     };
     return roleMessages[user?.role as keyof typeof roleMessages] || '欢迎使用系统';
   };
+
+  // 根据用户角色显示不同的界面
+  if (user?.role === 'customer_service') {
+    return <CustomerServiceDashboard />;
+  }
+  
+  if (user?.role === 'admin') {
+    return <AdminDashboard />;
+  }
+  
+  if (user?.role === 'repairman') {
+    return <RepairmanDashboard />;
+  }
 
   return (
     <div className="space-y-6">

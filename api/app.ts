@@ -7,10 +7,11 @@ import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import authRoutes from './routes/auth.js';
-import orderRoutes from './routes/orders.js';
-import userRoutes from './routes/users.js';
-import uploadRoutes from './routes/upload.js';
+import authRoutes from './routes/auth';
+// 导入订单路由模块
+import orderRoutes from './routes/orders';
+import userRoutes from './routes/users';
+import uploadRoutes from './routes/upload';
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url);

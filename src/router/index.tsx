@@ -6,6 +6,7 @@ import MainLayout from '../components/layout/MainLayout';
 import AuthLayout from '../components/layout/AuthLayout';
 
 // 页面组件
+import LoginPortal from '../pages/auth/LoginPortal';
 import Login from '../pages/auth/Login';
 import Dashboard from '../pages/Dashboard';
 import OrderList from '../pages/orders/OrderList';
@@ -37,10 +38,20 @@ const ProtectedRoute = ({ children, requiredRoles }: {
 
 // 公共路由保护（已登录用户不能访问登录页）
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+  if (isAuthenticated && user) {
+    // 根据用户角色跳转到相应页面
+    switch (user.role) {
+      case 'admin':
+        return <Navigate to="/dashboard" replace />;
+      case 'repairman':
+        return <Navigate to="/dashboard" replace />;
+      case 'customer_service':
+        return <Navigate to="/dashboard" replace />;
+      default:
+        return <Navigate to="/dashboard" replace />;
+    }
   }
   
   return <>{children}</>;
@@ -50,7 +61,15 @@ const PublicRoute = ({ children }: { children: React.ReactNode }) => {
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/portal" replace />,
+  },
+  {
+    path: '/portal',
+    element: (
+      <PublicRoute>
+        <LoginPortal />
+      </PublicRoute>
+    ),
   },
   {
     path: '/login',

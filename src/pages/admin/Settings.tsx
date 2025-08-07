@@ -14,7 +14,6 @@ import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 interface SystemConfig {
@@ -211,9 +210,13 @@ const Settings: React.FC = () => {
 
       {/* 配置选项卡 */}
       <Card>
-        <Tabs defaultActiveKey="business">
-          {/* 业务配置 */}
-          <TabPane tab={<span><DollarOutlined />业务配置</span>} key="business">
+        <Tabs 
+          defaultActiveKey="business"
+          items={[
+            {
+              key: 'business',
+              label: <span><DollarOutlined />业务配置</span>,
+              children: (
             <Form
               form={businessForm}
               layout="vertical"
@@ -315,10 +318,12 @@ const Settings: React.FC = () => {
                 </Button>
               </Form.Item>
             </Form>
-          </TabPane>
-
-          {/* 系统配置 */}
-          <TabPane tab={<span><SettingOutlined />系统配置</span>} key="system">
+              )
+            },
+            {
+              key: 'system',
+              label: <span><SettingOutlined />系统配置</span>,
+              children: (
             <Form
               form={systemForm}
               layout="vertical"
@@ -347,10 +352,12 @@ const Settings: React.FC = () => {
                 </Button>
               </Form.Item>
             </Form>
-          </TabPane>
-
-          {/* 通知配置 */}
-          <TabPane tab={<span><BellOutlined />通知配置</span>} key="notification">
+              )
+            },
+            {
+              key: 'notification',
+              label: <span><BellOutlined />通知配置</span>,
+              children: (
             <Form
               form={notificationForm}
               layout="vertical"
@@ -394,8 +401,10 @@ const Settings: React.FC = () => {
                 </Button>
               </Form.Item>
             </Form>
-          </TabPane>
-        </Tabs>
+              )
+            }
+          ]}
+        />
       </Card>
     </div>
   );

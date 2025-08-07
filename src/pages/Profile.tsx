@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, message, Avatar, Upload, Space, Divider } from 'antd';
+import { Card, Form, Input, Button, message, Avatar, Upload } from 'antd';
 import { UserOutlined, EditOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store';
 import { userAPI, handleAPIError } from '../utils/api';

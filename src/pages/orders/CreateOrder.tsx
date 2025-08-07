@@ -29,7 +29,8 @@ const CreateOrder: React.FC = () => {
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [serviceType, setServiceType] = useState<string>('');
+  const [serviceType, setServiceType] = useState<string>('repair');
+  const [appointmentService, setAppointmentService] = useState<string>('');
 
   // 获取设备类型和服务类型
   useEffect(() => {
@@ -145,6 +146,32 @@ const CreateOrder: React.FC = () => {
             urgency: 'normal',
             liquid_metal: 'uncertain'
           }}
+          onValuesChange={(changedValues, allValues) => {
+            // 当服务类型改变时，重置相关字段
+            if (changedValues.service_type) {
+              setServiceType(changedValues.service_type);
+              if (changedValues.service_type === 'repair') {
+                form.setFieldsValue({
+                  appointment_service: undefined,
+                  liquid_metal: undefined,
+                  service_details: undefined
+                });
+                setAppointmentService('');
+              } else {
+                form.setFieldsValue({
+                  problem_description: undefined,
+                  issue_description: undefined
+                });
+              }
+            }
+            // 当预约服务类型改变时，处理液态金属选项
+            if (changedValues.appointment_service) {
+              setAppointmentService(changedValues.appointment_service);
+              if (changedValues.appointment_service !== 'cleaning') {
+                form.setFieldsValue({ liquid_metal: undefined });
+              }
+            }
+          }}
         >
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Form.Item
@@ -175,7 +202,7 @@ const CreateOrder: React.FC = () => {
             label="服务类型"
             rules={[{ required: true, message: '请选择服务类型' }]}
           >
-            <Radio.Group onChange={(e) => setServiceType(e.target.value)}>
+            <Radio.Group>
               <Radio value="repair">维修服务</Radio>
               <Radio value="appointment">预约服务</Radio>
             </Radio.Group>
@@ -187,26 +214,33 @@ const CreateOrder: React.FC = () => {
               label="预约服务类型"
               rules={[{ required: true, message: '请选择预约服务类型' }]}
             >
-              <Select placeholder="请选择预约服务类型">
-                <Option value="cleaning">清洁保养</Option>
-                <Option value="screen_replacement">屏幕更换</Option>
-                <Option value="battery_replacement">电池更换</Option>
+              <Select 
+                placeholder="请选择预约服务类型"
+                onChange={(value) => setAppointmentService(value)}
+              >
+                <Option value="cleaning">清灰</Option>
+                <Option value="screen_replacement">换屏</Option>
+                <Option value="battery_replacement">换电池</Option>
                 <Option value="system_reinstall">系统重装</Option>
                 <Option value="software_install">软件安装</Option>
               </Select>
             </Form.Item>
           )}
 
-          <Form.Item
-            name="liquid_metal"
-            label="是否需要液态金属"
-          >
-            <Radio.Group>
-              <Radio value="yes">是</Radio>
-              <Radio value="no">否</Radio>
-              <Radio value="uncertain">不确定</Radio>
-            </Radio.Group>
-          </Form.Item>
+          {/* 液态金属选项 - 仅在清灰服务时显示 */}
+          {serviceType === 'appointment' && appointmentService === 'cleaning' && (
+            <Form.Item
+              name="liquid_metal"
+              label="液态金属机型"
+              extra="清灰服务中，液态金属机型需要特殊处理"
+            >
+              <Radio.Group>
+                <Radio value="yes">是</Radio>
+                <Radio value="no">否</Radio>
+                <Radio value="uncertain">不确定</Radio>
+              </Radio.Group>
+            </Form.Item>
+          )}
 
           <Form.Item
             name="urgency"
@@ -219,25 +253,44 @@ const CreateOrder: React.FC = () => {
             </Radio.Group>
           </Form.Item>
 
-          <Form.Item
-            name="problem_description"
-            label="问题描述"
-          >
-            <TextArea
-              rows={4}
-              placeholder="请详细描述设备问题"
-            />
-          </Form.Item>
+          {/* 维修服务的问题描述 */}
+          {serviceType === 'repair' && (
+            <>
+              <Form.Item
+                name="problem_description"
+                label="问题描述"
+                rules={[{ required: true, message: '请详细描述设备问题' }]}
+              >
+                <TextArea
+                  rows={4}
+                  placeholder="请详细描述设备问题，包括故障现象、发生时间等"
+                />
+              </Form.Item>
 
-          <Form.Item
-            name="issue_description"
-            label="故障现象"
-          >
-            <TextArea
-              rows={3}
-              placeholder="请描述具体的故障现象"
-            />
-          </Form.Item>
+              <Form.Item
+                name="issue_description"
+                label="故障现象"
+              >
+                <TextArea
+                  rows={3}
+                  placeholder="请描述具体的故障现象，如蓝屏、死机、无法开机等"
+                />
+              </Form.Item>
+            </>
+          )}
+
+          {/* 预约服务的服务详情 */}
+          {serviceType === 'appointment' && (
+            <Form.Item
+              name="service_details"
+              label="服务详情"
+            >
+              <TextArea
+                rows={3}
+                placeholder="请描述具体的服务需求或特殊要求"
+              />
+            </Form.Item>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Form.Item
